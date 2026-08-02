@@ -31,6 +31,3 @@ sdkconfig.*
 !sdkconfig.defaults
 dependencies.lock
 managed_components/
-
-# Library
-lib/

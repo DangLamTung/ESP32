@@ -1,0 +1,8 @@
+{
+    "name": "st7789",
+    "version": "1.0.0",
+    "description": "ST7789 240x198 SPI DMA driver for ESP32-C3",
+    "authors": [{ "name": "ESP32 Project" }],
+    "frameworks": ["espidf", "arduino"],
+    "platforms": ["espressif32"]
+}

@@ -1,0 +1,8 @@
+{
+    "name": "AnimatedGIF",
+    "version": "1.0.0",
+    "description": "BitBank AnimatedGIF decoder for ESP32",
+    "authors": [{ "name": "BitBank", "url": "https://github.com/bitbank2/AnimatedGIF" }],
+    "frameworks": ["espidf", "arduino"],
+    "platforms": ["espressif32"]
+}
