@@ -1,0 +1,36 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+cmake-build-*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.o
+*.elf
+*.bin
+*.hex
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# ESP-IDF generated
+sdkconfig.*
+!sdkconfig.defaults
+dependencies.lock
+managed_components/
+
+# Library
+lib/
