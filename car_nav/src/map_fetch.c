@@ -1,5 +1,5 @@
 #include "map_fetch.h"
-#include "st7789.h"
+#include "ili9341.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -63,7 +63,7 @@ static esp_err_t http_handler(esp_http_client_event_t *e) {
 esp_err_t map_fetch(double lat, double lon, int zoom, int w, int h) {
     if (!jpeg_buf) {
         jpeg_buf = malloc(65536);
-        line_buf = malloc(ST7789_WIDTH * sizeof(uint16_t));
+        line_buf = malloc(ILI9341_WIDTH * sizeof(uint16_t));
         work_buf = malloc(4000);
         if (!jpeg_buf || !line_buf || !work_buf) { ESP_LOGE(TAG, "malloc"); return ESP_ERR_NO_MEM; }
     }

@@ -31,3 +31,22 @@ sdkconfig.*
 !sdkconfig.defaults
 dependencies.lock
 managed_components/
+car_nav/sdkconfig
+
+# Build logs / local dev junk
+*.log
+curl_result.txt
+tile_test.png
+
+# car_nav generated artifacts
+car_nav/build/
+car_nav/preview/
+
+# Redundant local copies (audio lib is vendored inside music_demo/lib)
+ESP32-audioI2S-2.0.4/
+audioI2S_2.0.4.zip
+
+# Vendored audio library: keep only what's needed to build (src/, properties)
+music_demo/lib/ESP32-audioI2S/examples/
+music_demo/lib/ESP32-audioI2S/additional_info/
+music_demo/lib/ESP32-audioI2S/.github/

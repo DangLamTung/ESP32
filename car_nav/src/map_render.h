@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 /**
- * Vector map renderer for the ESP32-C3 + ST7789 240×198.
+ * Vector map renderer for the ESP32-S3 + ILI9341 320×240.
  *
  * Input is a compact map XML packet produced by the phone app:
  *
@@ -23,7 +23,7 @@ extern "C" {
  * Renders into an internal RGB565 framebuffer then blits to the display.
  */
 
-/** Initialize (allocates the framebuffer). Call once after st7789_init(). */
+/** Initialize (allocates the framebuffer). Call once after ili9341_init(). */
 int map_render_init(void);
 
 /** Self-test: fill fb with horizontal color bars and blit (verifies blit path). */
@@ -37,6 +37,34 @@ void map_render_fps_test(const char *xml, size_t len, int frames);
 
 /** Free the framebuffer (optional). */
 void map_render_deinit(void);
+
+/* ================= Turn-by-turn maneuver screen =================
+ * The round-device nav UI: a big direction arrow, distance to the maneuver
+ * and the current/next street names, with the device speed band on top.
+ * Rendered into the same circular viewport as the map. */
+
+typedef enum {
+    NAV_STRAIGHT = 0,
+    NAV_LEFT,
+    NAV_RIGHT,
+    NAV_SLIGHT_LEFT,
+    NAV_SLIGHT_RIGHT,
+    NAV_SHARP_LEFT,
+    NAV_SHARP_RIGHT,
+    NAV_UTURN,
+    NAV_ARRIVE,
+} nav_maneuver_t;
+
+typedef struct {
+    nav_maneuver_t maneuver; /* direction of the big arrow */
+    int distance_m;          /* meters to the maneuver (0 = arrived) */
+    const char *from;        /* current street, UTF-8 (diacritics auto-stripped) */
+    const char *to;          /* street after the maneuver, UTF-8 */
+    int speed;               /* km/h, shown in the bottom HUD band */
+} nav_screen_t;
+
+/** Render a full-screen turn-by-turn maneuver into the framebuffer + blit. */
+void map_render_nav_show(const nav_screen_t *nav);
 
 #ifdef __cplusplus
 }

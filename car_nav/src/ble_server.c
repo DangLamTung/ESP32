@@ -75,8 +75,11 @@ static void rx_put(char b)
         finalize_packet();
         return;
     }
-    /* Complete when the closing tag has arrived (packets may be split). */
-    if (rx_len >= 6 && strcmp(rx_buf + rx_len - 6, "</map>") == 0)
+    /* Complete when the closing tag has arrived (packets may be split).
+     * </map> = vector map packet, </nav> = turn-by-turn maneuver packet. */
+    if (rx_len >= 6 &&
+        (strcmp(rx_buf + rx_len - 6, "</map>") == 0 ||
+         strcmp(rx_buf + rx_len - 6, "</nav>") == 0))
         finalize_packet();
 }
 
@@ -203,8 +206,8 @@ void ble_server_init(void)
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "init: nvs ok");
 
-    /* Release memory reserved for Classic BT (unused on C3), then bring up
-     * the BLE controller BEFORE touching the NimBLE host/services. */
+    /* Release memory reserved for Classic BT (unused on BLE-only S3/C3), then
+     * bring up the BLE controller BEFORE touching the NimBLE host/services. */
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     ret = esp_bt_controller_init(&bt_cfg);
@@ -212,7 +215,8 @@ void ble_server_init(void)
         ESP_LOGE(TAG, "controller init failed: %s", esp_err_to_name(ret));
         return;
     }
-    ret = esp_bt_controller_enable(ESP_BT_MODE_BTDM);
+    /* ESP32-S3 is BLE-only: ESP_BT_MODE_BTDM (classic+BLE) is invalid here. */
+    ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "controller enable failed: %s", esp_err_to_name(ret));
         return;

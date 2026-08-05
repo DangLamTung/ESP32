@@ -1,4 +1,7 @@
-# ESP-IDF sdkconfig defaults for Google Maps on ST7789 project
+# ESP-IDF sdkconfig defaults for Google Maps on ILI9341 project (ESP32-S3)
+# Target
+CONFIG_IDF_TARGET="esp32s3"
+
 # WiFi
 CONFIG_ESP_WIFI_SSID=""
 CONFIG_ESP_WIFI_PASSWORD=""
@@ -15,19 +18,41 @@ CONFIG_ESP_HTTP_CLIENT_ENABLE_HTTPS=y
 CONFIG_SPI_MASTER_IN_IRAM=y
 CONFIG_SPI_MASTER_ISR_IN_IRAM=y
 
-# Main task stack (need enough for WiFi + HTTP + JPEG + BLE svc registration)
+# Main task stack (WiFi + HTTP + JPEG rendering)
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=16384
 
 # Enable large HTTP downloads
 CONFIG_ESP_HTTP_CLIENT_ENABLE_DIGEST_AUTH=n
 
-# BLE (NimBLE peripheral — receives map packets from the phone)
+# BLE enabled — the phone streams map/nav packets to the display via BLE
+# (src/ble_server.c, GATT write char). NimBLE host must be explicitly enabled
+# on ESP32-S3 (on C3 it is the default).
 CONFIG_BT_ENABLED=y
 CONFIG_BT_NIMBLE_ENABLED=y
-CONFIG_BT_NIMBLE_ROLE_PERIPHERAL=y
-# Central must stay enabled in IDF 4.4: NimBLE's ble_gap.c references
-# ble_gap_master_set_timer() (a central-only symbol) even when peripheral-only.
-CONFIG_BT_NIMBLE_ROLE_CENTRAL=y
-CONFIG_BT_NIMBLE_MAX_CONNECTIONS=1
-CONFIG_BT_NIMBLE_ATT_PREFERRED_MTU=512
-CONFIG_BT_NIMBLE_SM_ENABLE=n
+
+# 16MB flash chip; use the project's custom partition table (14MB app) so
+# there is lots of room for embedded offline map tiles.
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# PSRAM — the board has 8MB octal PSRAM (AP_3v3). Used for the big map/canvas
+# framebuffers so internal SRAM stays free for LVGL/BLE.
+CONFIG_SPIRAM=y
+CONFIG_ESP32S3_SPIRAM_SUPPORT=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_USE_MALLOC=y
+
+# LVGL graphics library
+CONFIG_LV_COLOR_DEPTH_16=y
+CONFIG_LV_FONT_MONTSERRAT_14=y
+CONFIG_LV_FONT_MONTSERRAT_16=y
+CONFIG_LV_FONT_MONTSERRAT_20=y
+CONFIG_LV_USE_CANVAS=y
+CONFIG_LV_USE_LODEPNG=n   # embedded tiles are JPEG, not PNG
+CONFIG_LV_USE_TJPGD=y     # LVGL's built-in JPEG decoder (decodes the embedded tiles)
+CONFIG_LV_USE_FS_MEMFS=y  # LVGL memfs drive letter must be valid ('M' = 77)
+CONFIG_LV_FS_MEMFS_LETTER=77
+# No image caching: tiles are decoded one-at-a-time and freed after blitting.
+CONFIG_LV_CACHE_DEF_SIZE=0
